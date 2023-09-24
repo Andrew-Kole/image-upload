@@ -2,7 +2,8 @@
 Serializers for Picture API
 """
 from rest_framework import serializers
-from ..core.models import Picture
+
+from core.models import Picture # noqa
 
 
 class PictureSerializer(serializers.ModelSerializer):

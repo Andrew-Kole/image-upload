@@ -6,8 +6,9 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
+
 from ..serializers import PictureSerializer
-from ...core.models import Picture
+from core.models import Picture # noqa
 
 PICTURES_URL = reverse('picture:picture-list')
 

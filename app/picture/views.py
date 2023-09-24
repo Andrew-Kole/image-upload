@@ -5,7 +5,7 @@ from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from . import serializers
-from ..core.models import Picture
+from core.models import Picture # noqa
 
 
 class PictureViewSet(viewsets.ModelViewSet):

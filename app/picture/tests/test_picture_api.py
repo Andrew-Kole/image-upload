@@ -7,10 +7,18 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from ..serializers import PictureSerializer
+from ..serializers import (
+    PictureSerializer,
+    PictureDetailSerializer,
+)
 from core.models import Picture # noqa
 
 PICTURES_URL = reverse('picture:picture-list')
+
+
+def detail_url(picture_id):
+    """creates and returns picture detail URL"""
+    return reverse('picture:picture-detail', args=[picture_id])
 
 
 def create_picture(user, **params):
@@ -71,4 +79,13 @@ class PrivatePictureAPITest(TestCase):
         serializer = PictureSerializer(pictures, many=True)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_get_picture_detail(self):
+        """Test of getting picture detail"""
+        picture = create_picture(user=self.user)
+        url = detail_url(picture.id)
+        res = self.client.get(url)
+        serializer = PictureDetailSerializer(picture)
+
         self.assertEqual(res.data, serializer.data)

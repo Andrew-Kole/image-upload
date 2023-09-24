@@ -12,3 +12,9 @@ class PictureSerializer(serializers.ModelSerializer):
         model = Picture
         fields = ['id', 'title', 'link', 'expires_at']
         read_only_fields = ['id', 'created_at']
+
+
+class PictureDetailSerializer(PictureSerializer):
+    """Serializer for picture details view."""
+    class Meta(PictureSerializer.Meta):
+        fields = PictureSerializer.Meta.fields + ['description']

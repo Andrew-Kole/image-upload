@@ -7,6 +7,8 @@ from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
     PermissionsMixin)
+from django.conf import settings
+from django.utils import timezone
 
 
 class UserManager(BaseUserManager):
@@ -52,3 +54,20 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
+
+class Picture(models.Model):
+    """represents picture model"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    link = models.URLField()
+    created_at = models.DateTimeField(default=timezone.now)
+    expiration = timezone.now() + timezone.timedelta(seconds=13500)
+    expires_at = models.DateTimeField(default=expiration)
+
+    def __str__(self):
+        return self.title

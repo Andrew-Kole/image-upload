@@ -1,8 +1,9 @@
 """
 Tests for models
 """
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
+from .. import models
 
 
 class ModelTests(TestCase):
@@ -47,3 +48,17 @@ class ModelTests(TestCase):
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
         self.assertEqual(user.role, 'Admin')
+
+    def test_create_picture(self):
+        """tests if picture object in db creating is successful"""
+        user = get_user_model().objects.create_user(
+            'test@example.com',
+            'testpass123'
+        )
+        picture = models.Picture.objects.create(
+            user=user,
+            title='Test picture name',
+            description='Some sample description'
+        )
+
+        self.assertEqual(str(picture), picture.title)

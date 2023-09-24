@@ -12,4 +12,3 @@ class PictureSerializer(serializers.ModelSerializer):
         model = Picture
         fields = ['id', 'title', 'link', 'expires_at']
         read_only_fields = ['id', 'created_at']
-

@@ -25,3 +25,7 @@ class PictureViewSet(viewsets.ModelViewSet):
             return serializers.PictureSerializer
 
         return self.serializer_class
+
+    def perform_create(self, serializer):
+        """creates new picture"""
+        serializer.save(user=self.request.user)

@@ -89,3 +89,18 @@ class PrivatePictureAPITest(TestCase):
         serializer = PictureDetailSerializer(picture)
 
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_picture(self):
+        """tests creating of picture"""
+        payload = {
+            'title': 'Test title',
+            'link': 'https://www.example.com'
+        }
+        res = self.client.post(PICTURES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        picture = Picture.objects.get(id=res.data['id'])
+        for k, v in payload.items():
+            self.assertEqual(getattr(picture, k), v)
+        self.assertEqual(picture.user, self.user)

@@ -54,7 +54,8 @@ class PrivatePictureAPITest(TestCase):
     """represents tests for authenticated user"""
     def setUp(self):
         self.client = APIClient()
-        self.user = create_user(email='test@example.com', password='testpass123')
+        self.user = create_user(email='test@example.com',
+                                password='testpass123')
         self.client.force_authenticate(self.user)
 
     def test_retrieve_pictures(self):
@@ -70,7 +71,8 @@ class PrivatePictureAPITest(TestCase):
 
     def test_picture_list_limited_to_user(self):
         """tests if user sees just his pictures list"""
-        other_user = create_user(email='other@example.com', password='otherpass123')
+        other_user = create_user(email='other@example.com',
+                                 password='otherpass123')
         create_picture(user=other_user)
         create_picture(user=self.user)
         res = self.client.get(PICTURES_URL)

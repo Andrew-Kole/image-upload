@@ -33,6 +33,11 @@ def create_picture(user, **params):
     return picture
 
 
+def create_user(**params):
+    """creats and returns user"""
+    return get_user_model().objects.create_user(**params)
+
+
 class PublicPictureAPITests(TestCase):
     """represents unauthenticated requests"""
     def setUp(self):
@@ -49,10 +54,7 @@ class PrivatePictureAPITest(TestCase):
     """represents tests for authenticated user"""
     def setUp(self):
         self.client = APIClient()
-        self.user = get_user_model().objects.create_user(
-            'test@example.com',
-            'testpass123'
-        )
+        self.user = create_user(email='test@example.com', password='testpass123')
         self.client.force_authenticate(self.user)
 
     def test_retrieve_pictures(self):
@@ -68,10 +70,7 @@ class PrivatePictureAPITest(TestCase):
 
     def test_picture_list_limited_to_user(self):
         """tests if user sees just his pictures list"""
-        other_user = get_user_model().objects.create_user(
-            'other@example.com',
-            'otherpass123'
-        )
+        other_user = create_user(email='other@example.com', password='otherpass123')
         create_picture(user=other_user)
         create_picture(user=self.user)
         res = self.client.get(PICTURES_URL)
@@ -104,3 +103,55 @@ class PrivatePictureAPITest(TestCase):
         for k, v in payload.items():
             self.assertEqual(getattr(picture, k), v)
         self.assertEqual(picture.user, self.user)
+
+    def test_partial_update(self):
+        """tests partial update of picture"""
+        original_link = 'https://www.example.com'
+        picture = create_picture(
+            user=self.user,
+            title='Test picture title',
+            link=original_link,
+        )
+        payload = {'title': 'New picture title'}
+        url = detail_url(picture.id)
+        res = self.client.patch(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        picture.refresh_from_db()
+
+        self.assertEqual(picture.title, payload['title'])
+        self.assertEqual(picture.link, original_link)
+        self.assertEqual(picture.user, self.user)
+
+    def test_full_update(self):
+        """tests ful update of picture"""
+        picture = create_picture(
+            user=self.user,
+            title='Test picture title',
+            link='https://www.example.com',
+            description='Test picture description',
+        )
+        payload = {
+            'title': 'New picture title',
+            'link': 'https://www.google.com',
+            'description': 'New picture description',
+        }
+        url = detail_url(picture.id)
+        res = self.client.put(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        picture.refresh_from_db()
+        for k, v in payload.items():
+            self.assertEqual(getattr(picture, k), v)
+        self.assertEqual(picture.user, self.user)
+
+    def test_delete_picture(self):
+        """tests if deleting picture works correctly"""
+        picture = create_picture(user=self.user)
+        url = detail_url(picture.id)
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Picture.objects.filter(id=picture.id).exists())

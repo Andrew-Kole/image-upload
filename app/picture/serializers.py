@@ -49,6 +49,16 @@ class PictureImageSerializer(serializers.ModelSerializer):
         extra_kwargs = {'image': {'required': 'True'}}
 
 
-class PictureThumbnailSerializer(PictureSerializer):
-    """Serializer for thumbnail serializer"""
-    thumbnail_data = serializers.ImageField()
+class PictureOriginalImageSerializer(PictureSerializer):
+    """Serializer for original image get"""
+    image_data = serializers.ImageField()
+
+
+class PictureSmallThumbnailSerializer(PictureSerializer):
+    """Serializer for thumbnail image"""
+    image_data = serializers.ImageField()
+
+
+class PictureBigThumbnailSerializer(PictureSerializer):
+    """Serializer for thumbnail image"""
+    image_data = serializers.ImageField()

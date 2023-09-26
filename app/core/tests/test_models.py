@@ -6,6 +6,7 @@ from django.test import TestCase
 from .. import models
 from django.utils import timezone
 from datetime import timedelta
+from unittest.mock import patch
 
 
 class ModelTests(TestCase):
@@ -66,3 +67,12 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(picture), picture.title)
+
+    @patch('core.models.uuid.uuid4')
+    def test_image_filename_uuid(self, mock_uuid):
+        """tests generating uuid path"""
+        uuid = 'test-uuid'
+        mock_uuid.return_value = uuid
+        file_path = models.image_file_path(None, 'example.jpg')
+
+        self.assertEqual(file_path, f'uploads/picture/{uuid}.jpg')

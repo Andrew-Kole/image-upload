@@ -12,6 +12,7 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/app
+      - dev-static-data:/vol/web
     command: >
       sh -c "flake8 &&
              python manage.py test &&
@@ -37,3 +38,4 @@ services:
 
 volumes:
   image-db-data:
+  dev-static-data:

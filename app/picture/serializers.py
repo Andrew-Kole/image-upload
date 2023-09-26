@@ -38,3 +38,14 @@ class PictureDetailSerializer(PictureSerializer):
     """Serializer for picture details view."""
     class Meta(PictureSerializer.Meta):
         fields = PictureSerializer.Meta.fields + ['description']
+
+
+class PictureImageSerializer(serializers.ModelSerializer):
+    """Serializer for image upload"""
+    class Meta:
+        model = Picture
+        fields = ['id', 'image']
+        read_only_fields = ['id']
+        extra_kwargs = {'image': {'required': 'True'}}
+
+

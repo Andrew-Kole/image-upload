@@ -73,7 +73,6 @@ class Picture(models.Model):
     )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    link = models.URLField()
     created_at = models.DateTimeField()
     expires_at = models.DateTimeField()
     image = models.ImageField(null=True, upload_to=image_file_path)

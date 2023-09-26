@@ -13,7 +13,7 @@ class PictureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Picture
-        fields = ['id', 'title', 'link', 'created_at',
+        fields = ['id', 'title', 'created_at',
                   'expires_at', 'seconds_to_expire']
         read_only_fields = ['id', 'created_at', 'expires_at']
 

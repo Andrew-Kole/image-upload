@@ -35,7 +35,6 @@ def create_picture(user, **params):
     defaults = {
         'title': 'Test picture title',
         'description': 'Test picture description',
-        'link': 'http://www.example.com/picture.jpg',
         'created_at': timezone.now(),
         'expires_at': timezone.now() + timedelta(seconds=3600),
     }
@@ -105,7 +104,6 @@ class PrivatePictureAPITest(TestCase):
         """tests creating of picture"""
         payload = {
             'title': 'Test title',
-            'link': 'https://www.example.com',
             'seconds_to_expire': 3600,
         }
         res = self.client.post(PICTURES_URL, payload)
@@ -113,20 +111,14 @@ class PrivatePictureAPITest(TestCase):
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
         picture = Picture.objects.get(id=res.data['id'])
-        for i, (k, v) in enumerate(payload.items()):
-            if i < 2:
-                self.assertEqual(getattr(picture, k), v)
-            else:
-                break
+        self.assertEqual(picture.title, payload['title'])
         self.assertEqual(picture.user, self.user)
 
     def test_partial_update(self):
         """tests partial update of picture"""
-        original_link = 'https://www.example.com'
         picture = create_picture(
             user=self.user,
             title='Test picture title',
-            link=original_link,
             description='Test picture description',
             created_at=timezone.now(),
             expires_at=timezone.now() + timedelta(seconds=3600),
@@ -140,7 +132,6 @@ class PrivatePictureAPITest(TestCase):
         picture.refresh_from_db()
 
         self.assertEqual(picture.title, payload['title'])
-        self.assertEqual(picture.link, original_link)
         self.assertEqual(picture.user, self.user)
 
     def test_full_update(self):
@@ -148,14 +139,12 @@ class PrivatePictureAPITest(TestCase):
         picture = create_picture(
             user=self.user,
             title='Test picture title',
-            link='https://www.example.com',
             description='Test picture description',
             created_at=timezone.now(),
             expires_at=timezone.now() + timedelta(seconds=3600),
         )
         payload = {
             'title': 'New picture title',
-            'link': 'https://www.google.com',
             'description': 'New picture description',
             'seconds_to_expire': 3600,
         }
@@ -166,7 +155,7 @@ class PrivatePictureAPITest(TestCase):
 
         picture.refresh_from_db()
         for i, (k, v) in enumerate(payload.items()):
-            if i < 3:
+            if i < 2:
                 self.assertEqual(getattr(picture, k), v)
             else:
                 break

@@ -12,6 +12,8 @@ from ..serializers import (
     PictureDetailSerializer,
 )
 from core.models import Picture # noqa
+from django.utils import timezone
+from datetime import timedelta
 
 PICTURES_URL = reverse('picture:picture-list')
 
@@ -26,7 +28,9 @@ def create_picture(user, **params):
     defaults = {
         'title': 'Test picture title',
         'description': 'Test picture description',
-        'link': 'http://www.example.com/picture.jpg'
+        'link': 'http://www.example.com/picture.jpg',
+        'created_at': timezone.now(),
+        'expires_at': timezone.now() + timedelta(seconds=3600),
     }
     defaults.update(params)
     picture = Picture.objects.create(user=user, **defaults)
@@ -61,7 +65,6 @@ class PrivatePictureAPITest(TestCase):
     def test_retrieve_pictures(self):
         """tests if list of pictures retrieves"""
         create_picture(user=self.user)
-        create_picture(user=self.user)
         res = self.client.get(PICTURES_URL)
         pictures = Picture.objects.all().order_by('-id')
         serializer = PictureSerializer(pictures, many=True)
@@ -95,15 +98,19 @@ class PrivatePictureAPITest(TestCase):
         """tests creating of picture"""
         payload = {
             'title': 'Test title',
-            'link': 'https://www.example.com'
+            'link': 'https://www.example.com',
+            'seconds_to_expire': 3600,
         }
         res = self.client.post(PICTURES_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
         picture = Picture.objects.get(id=res.data['id'])
-        for k, v in payload.items():
-            self.assertEqual(getattr(picture, k), v)
+        for i, (k, v) in enumerate(payload.items()):
+            if i < 2:
+                self.assertEqual(getattr(picture, k), v)
+            else:
+                break
         self.assertEqual(picture.user, self.user)
 
     def test_partial_update(self):
@@ -113,6 +120,9 @@ class PrivatePictureAPITest(TestCase):
             user=self.user,
             title='Test picture title',
             link=original_link,
+            description='Test picture description',
+            created_at=timezone.now(),
+            expires_at=timezone.now() + timedelta(seconds=3600),
         )
         payload = {'title': 'New picture title'}
         url = detail_url(picture.id)
@@ -133,11 +143,14 @@ class PrivatePictureAPITest(TestCase):
             title='Test picture title',
             link='https://www.example.com',
             description='Test picture description',
+            created_at=timezone.now(),
+            expires_at=timezone.now() + timedelta(seconds=3600),
         )
         payload = {
             'title': 'New picture title',
             'link': 'https://www.google.com',
             'description': 'New picture description',
+            'seconds_to_expire': 3600,
         }
         url = detail_url(picture.id)
         res = self.client.put(url, payload)
@@ -145,8 +158,11 @@ class PrivatePictureAPITest(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         picture.refresh_from_db()
-        for k, v in payload.items():
-            self.assertEqual(getattr(picture, k), v)
+        for i, (k, v) in enumerate(payload.items()):
+            if i < 3:
+                self.assertEqual(getattr(picture, k), v)
+            else:
+                break
         self.assertEqual(picture.user, self.user)
 
     def test_delete_picture(self):

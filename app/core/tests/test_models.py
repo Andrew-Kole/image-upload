@@ -4,6 +4,8 @@ Tests for models
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from .. import models
+from django.utils import timezone
+from datetime import timedelta
 
 
 class ModelTests(TestCase):
@@ -58,7 +60,9 @@ class ModelTests(TestCase):
         picture = models.Picture.objects.create(
             user=user,
             title='Test picture name',
-            description='Some sample description'
+            description='Some sample description',
+            created_at=timezone.now(),
+            expires_at=timezone.now() + timedelta(seconds=3600),
         )
 
         self.assertEqual(str(picture), picture.title)

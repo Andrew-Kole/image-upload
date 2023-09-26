@@ -8,7 +8,6 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin)
 from django.conf import settings
-from django.utils import timezone
 
 
 class UserManager(BaseUserManager):
@@ -65,9 +64,8 @@ class Picture(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     link = models.URLField()
-    created_at = models.DateTimeField(default=timezone.now)
-    expiration = timezone.now() + timezone.timedelta(seconds=13500)
-    expires_at = models.DateTimeField(default=expiration)
+    created_at = models.DateTimeField()
+    expires_at = models.DateTimeField()
 
     def __str__(self):
         return self.title

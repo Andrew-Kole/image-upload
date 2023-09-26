@@ -47,3 +47,8 @@ class PictureImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'image']
         read_only_fields = ['id']
         extra_kwargs = {'image': {'required': 'True'}}
+
+
+class PictureThumbnailSerializer(PictureSerializer):
+    """Serializer for thumbnail serializer"""
+    thumbnail_data = serializers.ImageField()

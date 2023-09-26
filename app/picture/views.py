@@ -8,6 +8,8 @@ from . import serializers
 from core.models import Picture # noqa
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.http import HttpResponse
+from .image_resizer import generate_thumbnail
 
 
 class PictureViewSet(viewsets.ModelViewSet):
@@ -27,6 +29,8 @@ class PictureViewSet(viewsets.ModelViewSet):
             return serializers.PictureSerializer
         elif self.action == 'upload_image':
             return serializers.PictureImageSerializer
+        elif self.action == 'thumbnail-small':
+            return serializers.PictureThumbnailSerializer
 
         return self.serializer_class
 
@@ -43,3 +47,11 @@ class PictureViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['GET'], detail=True, url_path='thumbnail-small')
+    def get_thumbnail_small(self, request, pk=None):
+        picture = self.get_object()
+        thumbnail = generate_thumbnail(picture.image.path, 200)
+        res = HttpResponse(thumbnail, content_type='image/jpeg')
+
+        return res

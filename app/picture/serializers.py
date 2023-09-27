@@ -9,25 +9,17 @@ from core.models import Picture # noqa
 
 class PictureSerializer(serializers.ModelSerializer):
     """Serializer for pictures"""
-    seconds_to_expire = serializers.IntegerField(write_only=True)
-
     class Meta:
         model = Picture
         fields = ['id', 'title', 'created_at',
-                  'expires_at', 'seconds_to_expire']
+                  'expires_at']
         read_only_fields = ['id', 'created_at', 'expires_at']
 
     def create(self, validated_data):
         """creates, saves and returns a new Picture object"""
-        seconds_to_expire = validated_data.pop('seconds_to_expire', None)
         validated_data['created_at'] = timezone.now()
-        if seconds_to_expire is not None:
-            validated_data['expires_at'] = (validated_data['created_at'] +
-                                            timedelta(seconds=seconds_to_expire)) # noqa
-        else:
-            validated_data['expires_at'] = (validated_data['created_at'] +
-                                            timedelta(seconds=13500))
-
+        validated_data['expires_at'] = (validated_data['created_at'] +
+                                        timedelta(seconds=13500)) # noqa
         picture = Picture(**validated_data)
         picture.save()
 
@@ -51,14 +43,4 @@ class PictureImageSerializer(serializers.ModelSerializer):
 
 class PictureOriginalImageSerializer(PictureSerializer):
     """Serializer for original image get"""
-    image_data = serializers.ImageField()
-
-
-class PictureSmallThumbnailSerializer(PictureSerializer):
-    """Serializer for thumbnail image"""
-    image_data = serializers.ImageField()
-
-
-class PictureBigThumbnailSerializer(PictureSerializer):
-    """Serializer for thumbnail image"""
     image_data = serializers.ImageField()

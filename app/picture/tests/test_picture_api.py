@@ -104,7 +104,6 @@ class PrivatePictureAPITest(TestCase):
         """tests creating of picture"""
         payload = {
             'title': 'Test title',
-            'seconds_to_expire': 3600,
         }
         res = self.client.post(PICTURES_URL, payload)
 
@@ -146,7 +145,6 @@ class PrivatePictureAPITest(TestCase):
         payload = {
             'title': 'New picture title',
             'description': 'New picture description',
-            'seconds_to_expire': 3600,
         }
         url = detail_url(picture.id)
         res = self.client.put(url, payload)

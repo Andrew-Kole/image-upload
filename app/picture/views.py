@@ -10,6 +10,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.http import HttpResponse
 from .resizer import resize_image
+from core.permissions import  ( # noqa
+    IsPremiumUser, # noqa
+    IsEnterpriseUser, # noqa
+    IsAdminUser, # noqa
+)
+from django.utils import timezone
 
 
 class PictureViewSet(viewsets.ModelViewSet):
@@ -30,9 +36,9 @@ class PictureViewSet(viewsets.ModelViewSet):
         elif self.action == 'upload_image':
             return serializers.PictureImageSerializer
         elif self.action == 'thumbnail_small':
-            return serializers.PictureThumbnailSerializer
+            return serializers.PictureOriginalImageSerializer
         elif self.action == 'thumbnail_big':
-            return serializers.PictureThumbnailSerializer
+            return serializers.PictureOriginalImageSerializer
         elif self.action == 'original_image':
             return serializers.PictureOriginalImageSerializer
 
@@ -55,24 +61,41 @@ class PictureViewSet(viewsets.ModelViewSet):
     @action(methods=['GET'], detail=True, url_path='thumbnail-small')
     def get_thumbnail_small(self, request, pk=None):
         picture = self.get_object()
+        if picture.expires_at < timezone.now():
+            raise Exception('The picture has expired')
+
         thumbnail = resize_image(picture, 200)
         res = HttpResponse(content_type='image/jpeg')
         thumbnail.save(res, 'JPEG')
 
         return res
 
-    @action(methods=['GET'], detail=True, url_path='thumbnail-big')
+    @action(methods=['GET'], detail=True, url_path='thumbnail-big',
+            permission_classes=[
+                IsPremiumUser,
+                IsEnterpriseUser,
+                IsAdminUser])
     def get_thumbnail_big(self, request, pk=None):
         picture = self.get_object()
+        if picture.expires_at < timezone.now():
+            raise Exception('The picture has expired')
+
         thumbnail = resize_image(picture, 400)
         res = HttpResponse(content_type='image/jpeg')
         thumbnail.save(res, 'JPEG')
 
         return res
 
-    @action(methods=['GET'], detail=True, url_path='original-image')
+    @action(methods=['GET'], detail=True, url_path='original-image',
+            permission_classes=[
+                IsPremiumUser,
+                IsEnterpriseUser,
+                IsAdminUser,
+            ])
     def get_original_image(self, request, pk=None):
         picture = self.get_object()
+        if picture.expires_at < timezone.now():
+            raise Exception('The picture has expired')
         res = HttpResponse(picture.image, content_type='image/jpeg')
 
         return res
